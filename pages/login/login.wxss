@@ -10,9 +10,9 @@ Page {
   box-sizing: border-box;
   display: flex;
   flex-flow: column nowrap;
-  padding: 50px 10px;
-  justify-content: flex-start;
-  align-items: center
+  padding: 50px 0px 0px;
+  font-size:16px;
+  color:#353535;
 }
 
 .login-with-test {
@@ -30,10 +30,13 @@ Page {
   height: 60px;
   border-radius: 50%;
   margin-bottom: 20px;
+  margin:0 auto;
 }
 
 #login-name {
+  margin-top: 20px;
   margin-bottom: 20px;
+  text-align: center;
 }
 #login-message {
   width: 100%;
@@ -44,17 +47,35 @@ Page {
   color: #666
 }
 
+.confirm-dialog {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.confirm-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
 .register-password {
   border: 1px solid #e5e5e5;
-  background: #f5f5f5;
-  padding-left: 12px;
-  margin: 14px 0;
+  /* background: #f5f5f5; */
+  background: #fff;
   height: 40px;
+  margin: 0 32px 20px 32px;
+  padding-left:16px;
 }
 
 .register-password-placeholder {
-  font-size: 16px;
+  font-size: 14px;
   color: #888;
+}
+
+.bottom-area {
+  position: absolute;
+  width: calc(100% - 20px);
+  bottom: 10px;
+  padding: 0 10px;
 }
 
 .submit-button {
@@ -63,11 +84,14 @@ Page {
   font-size: 18px;
 }
 
+.submit-button {
+  background: #fbfafc;
+  color: rgba(0,0,0,.3);
+  border-color: #e6e6e6;
+}
 
 
 
-
-//for test
 .login-test view{
   display: flex;
   flex-flow: row nowrap;
@@ -86,6 +110,3 @@ Page {
   border: 1px solid #999
 }
 
-.login-test button {
-
-}

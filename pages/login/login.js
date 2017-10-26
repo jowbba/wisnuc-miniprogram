@@ -16,6 +16,7 @@ Page({
     test: false,
     username:'',
     password:'',
+    passwordConfirm:'',
     pulling:false
   },
 
@@ -23,16 +24,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    if (app.globalData.ticket) {
-      console.log('ticket exist')
-      this.tryLogin()
-      // ticket 存在
-    }else {
-      console.log('ticket not exist')
-      // ticket 不存在
-      this.tryLogin()
-    }
-    
+    this.tryLogin()
   },
 
   /**
@@ -105,7 +97,7 @@ Page({
       let userInfo = JSON.parse(result.rawData)
       app.userInfo = userInfo
       this.setData({ userInfo, status:'正在登录...' })
-      let url = 'http://www.siyouqun.org/v1/token'
+      let url = app.globalData.url + '/c/v1/token'
       //获取token
       return login(url, code, iv, encryptedData)
     }).then(loginResult => {
@@ -126,9 +118,17 @@ Page({
   tryTicket: function() {
     if (app.globalData.ticket) {
       //ticket存在
-      let url = 'http://10.10.9.59:5757/v1/tickets/' + app.globalData.ticket
+      let url = app.globalData.url + '/c/v1/tickets/' + app.globalData.ticket
       checkTicket(url, this.data.token).then(result => {
         console.log('检查ticket : ',result)
+        if (result.data.code !== 200) {
+          //用户已存在 
+          if (result.data.code == 403) return this.setData({ 'status': '您已是该设备用户'})
+          //ticket是否无效
+          if (result.data.code == 404) return this.setData({ 'status': '邀请码错误' })
+          //ticket 是否过期
+          if (result.data.message == 'ticket already expired') return this.setData({'status': '邀请已过期'})
+        }
         if (result.data.data == null) {
           //ticket已使用
           this.updateStatus('邀请已完成')
@@ -136,7 +136,7 @@ Page({
             console.log('pull ticket', ticketResult)
             this.checketPullResult(ticketResult.data.data)
           })
-        } else if (result.data.data.userId) {
+        } else if (result.data.data.user) {
           //ticket已填写
           this.updateStatus('邀请已被接受，请等待确认')
           this.data.pulling = true
@@ -155,10 +155,16 @@ Page({
   },
   //填ticket
   submitTicket() {
-    let url = 'http://10.10.9.59:5757/v1/tickets/' + app.globalData.ticket + '/users'
-    fillTicket(url, this.data.password, this.data.token).then(data => {
+    let url = app.globalData.url + '/c/v1/tickets/' + app.globalData.ticket + '/invite'
+    let password = this.data.password
+    let passwordConfirm = this.data.passwordConfirm
+    if (password.length == 0) return wx.showModal({ title: '密码不能为空', showCancel:false}) 
+    if (password !== passwordConfirm) return wx.showModal({ title: '两次密码不一致', showCancel: false } ) 
+    fillTicket(url, password, this.data.token).then(data => {
       console.log(data)
+      if (data.data.code == 403) return this.setData({ 'status': data.data.message, state:'' })
       this.setData({ status: '请在App中进行确认:' + app.globalData.ticket, state: '' })
+      this.data.pulling = true
       this.pulling()
     }).catch(e => {
       console.log(e)
@@ -168,15 +174,16 @@ Page({
   pulling() {
     if (!this.data.pulling) return
     this.pullTicket(app.globalData.ticket, this.data.userid).then(ticketResult => {
+      console.log(ticketResult)
       this.checketPullResult(ticketResult.data.data)
-      setTimeout(this.pulling, 3000)
+      setTimeout(this.pulling, 5000)
     })
   },
 
   pullTicket(ticket,userid) {
     return new Promise((resolve,reject) => {
       wx.request({
-        url: 'http://10.10.9.59:5757/v1/tickets/' + ticket + '/users/' + userid,
+        url: app.globalData.url + '/c/v1/tickets/' + ticket + '/users/' + userid,
         header: { Authorization: this.data.token },
         success: (result) => resolve(result),
         fail: err => reject(err)
@@ -185,12 +192,11 @@ Page({
   },
   //处理轮询结果
   checketPullResult(ticketResult) {
-    console.log(ticketResult)
     this.data.pulling = false
-    if (ticketResult.type == 'resolve') {
+    if (ticketResult.type == 'resolved') {
       this.updateStatus('你已被添加进群')
       //todo getGroup
-    } else if (ticketResult.type == 'reject') {
+    } else if (ticketResult.type == 'rejected') {
       this.updateStatus('你已被拒绝')
       //todo getGroup
     } else if (ticketResult.type == 'pending') {
@@ -213,8 +219,11 @@ Page({
 
   inputPassword: function(e) {
     this.setData({ password: e.detail.value })
-    console.log(this)
   },  
+
+  inputPasswordConfirm: function(e) {
+    this.setData({ passwordConfirm: e.detail.value })
+  },
 
   testSubmit: function() {
     let userName = this.data.username
