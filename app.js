@@ -10,6 +10,6 @@ App({
   globalData: {
     userInfo: null,
     ticket:'',
-    url: 'http://10.10.9.59:4000'
+    url: 'https://91689709.siyouqun.org'
   }
 })

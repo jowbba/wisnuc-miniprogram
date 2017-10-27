@@ -1,7 +1,7 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": true,
 		"postcss": true,
 		"minified": true
@@ -12,13 +12,13 @@
 	"projectname": "wisnuc",
 	"condition": {
 		"weapp": {
-			"current": 0,
+			"current": -1,
 			"list": [
 				{
 					"id": 0,
 					"name": "with ticket",
 					"pathName": "pages/login/login",
-					"query": "ticket=b6910969-a029-4c48-8b91-8a875ce03972"
+					"query": "ticket=3ed89e44-91b1-4566-8378-70c54a1ff265"
 				}
 			]
 		},

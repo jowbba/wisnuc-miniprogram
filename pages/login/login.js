@@ -123,7 +123,7 @@ Page({
         console.log('检查ticket : ',result)
         if (result.data.code !== 200) {
           //用户已存在 
-          if (result.data.code == 403) return this.setData({ 'status': '您已是该设备用户'})
+          if (result.data.code == 403) return this.setData({ 'status': result.data.message})
           //ticket是否无效
           if (result.data.code == 404) return this.setData({ 'status': '邀请码错误' })
           //ticket 是否过期

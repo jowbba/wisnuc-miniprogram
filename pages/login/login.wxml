@@ -1,7 +1,7 @@
 <!--pages/login/login.wxml-->
 
 <view class="page-frame">
-  <text class='login-with-test' bindtap="userTest">使用测试账号登录</text>
+  <!-- <text class='login-with-test' bindtap="userTest">使用测试账号登录</text> -->
   <image id='login-avatar' src="{{userInfo.avatarUrl}}"></image>
   <text id='login-name' >{{userInfo.nickName}}</text>
 
