@@ -42,7 +42,7 @@ Page {
   width: 100%;
   padding: 0 10%;
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
   color: #666
 }
@@ -84,29 +84,12 @@ Page {
   font-size: 18px;
 }
 
-.submit-button {
+/* .submit-button {
   background: #fbfafc;
   color: rgba(0,0,0,.3);
   border-color: #e6e6e6;
-}
+} */
 
 
 
-.login-test view{
-  display: flex;
-  flex-flow: row nowrap;
-  font-size:14px;
-  color:#666;
-  height: 30px;
-  line-height: 30px;
-  margin-bottom: 10px;
-}
-
-.login-test label {
-  width: 80px;
-}
-
-.login-test input {
-  border: 1px solid #999
-}
 

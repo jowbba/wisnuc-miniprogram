@@ -1,36 +1,18 @@
 <!--pages/login/login.wxml-->
 
 <view class="page-frame">
-  <!-- <text class='login-with-test' bindtap="userTest">使用测试账号登录</text> -->
-  <image id='login-avatar' src="{{userInfo.avatarUrl}}"></image>
-  <text id='login-name' >{{userInfo.nickName}}</text>
+  <text class='login-with-test' bindtap="userTest">测试账号登录</text> 
+  <image id='login-avatar' src="{{state=='wait'?creatorInfo.avatarUrl:userInfo.avatarUrl}}"></image>
+  <text id='login-name' >{{state=='wait'?creatorInfo.nickName:userInfo.nickName}}</text>
+  <text id='login-message' wx:if="{{!test}}">{{status}}</text>
 
-
-
-  <text id='login-message' wx:if="{{!test && state!='wait'}}">{{status}}</text>
-
-  <view class="confirm-dialog" wx:if="{{state== 'wait'}}">
-    <text class='confirm-title'>申请 WISNUC 账号</text>
-    <input placeholder="请输入本地账号密码" class='register-password' placeholder-class='register-password-placeholder' type='password' bindinput="inputPassword" />
-    <input placeholder="请确认密码" class='register-password ' placeholder-class='register-password-placeholder' type='password' bindinput="inputPasswordConfirm" />
-    
+  <view class="confirm-dialog" wx:if="{{state=='wait'}}">
+    <!-- <text class='confirm-title'>申请 WISNUC 账号</text> -->
+    <!-- <input placeholder="请输入本地账号密码" class='register-password' placeholder-class='register-password-placeholder' type='password' bindinput="inputPassword" />
+    <input placeholder="请确认密码" class='register-password ' placeholder-class='register-password-placeholder' type='password' bindinput="inputPasswordConfirm" /> -->
   </view>
 
   <view class='bottom-area'>
     <button wx:if="{{state== 'wait'}}" class="submit-button" bindtap="submitTicket">接受邀请</button>
-  </view>
-
-
-
-  <view class="login-test" wx:if="{{test}}">
-    <view class="login-username">
-      <label class= 'login-test-label'>测试用户名</label>
-      <input type="text" bindinput="inputUsername"/>
-    </view>
-    <view class="login-password">
-      <label class= 'login-test-label'>测试密码</label>
-      <input type="password" bindinput="inputPassword"/>
-    </view>
-    <button bindtap="testSubmit">提交</button>
   </view>
 </view>

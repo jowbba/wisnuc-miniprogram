@@ -1,7 +1,7 @@
 // pages/login/login.js
 var app = getApp()
 var utils = require('../../utils/util.js')
-var { wxlogin, wxGetUserInfo, login, checkTicket, fillTicket} = utils
+var { wxlogin, wxGetUserInfo, login, checkTicket, fillTicket, getErrorMessage} = utils
 Page({
 
   /**
@@ -10,13 +10,13 @@ Page({
   data: {
     status:'欢迎使用',
     state:'',
-    userInfo: {},
     ticket: false,
+    userInfo: {},
+    userid: '',
     token: '',
+    creatorInfo: {},
     test: false,
-    username:'',
-    password:'',
-    passwordConfirm:'',
+    
     pulling:false
   },
 
@@ -76,10 +76,17 @@ Page({
   
   },
 
+  // 更新状态
   updateStatus: function(message) {
     this.setData({status:message})
   },
 
+  // 跳转到测试账号
+  userTest: function () {
+    wx.navigateTo({ url: '../testLogin/testLogin' })
+  },
+
+  // 登录
   tryLogin: function() {
     let code, iv, encryptedData
     this.updateStatus('正在读取登录信息...')
@@ -118,37 +125,52 @@ Page({
   tryTicket: function() {
     if (app.globalData.ticket) {
       //ticket存在
-      let url = app.globalData.url + '/c/v1/tickets/' + app.globalData.ticket
-      checkTicket(url, this.data.token).then(result => {
+      this.getTicket().then(result => {
         console.log('检查ticket : ',result)
-        if (result.data.code !== 200) {
-          //用户已存在 
-          if (result.data.code == 403) return this.setData({ 'status': result.data.message})
-          //ticket是否无效
-          if (result.data.code == 404) return this.setData({ 'status': '邀请码错误' })
-          //ticket 是否过期
-          if (result.data.message == 'ticket already expired') return this.setData({'status': '邀请已过期'})
-        }
-        if (result.data.data == null) {
-          //ticket已使用
-          this.updateStatus('邀请已完成')
-          this.pullTicket(app.globalData.ticket,this.data.userid).then(ticketResult => {
-            console.log('pull ticket', ticketResult)
-            this.checketPullResult(ticketResult.data.data)
+        let code = result.data.code
+        let statusCode = result.statusCode
+        if (statusCode !== 200) {
+          // http code error
+          if (statusCode == 400) return this.setData({ 'status': '邀请码无效' })
+          else if (code == 60001) return this.updateStatus('当前微信用户已注册') // 用户已在ticket所在设备注册过
+          else if (code == 60202) return this.updateStatus('邀请码已过期')
+          else if (code == 60204) return this.updateStatus('您已申请过加入设备，无需重复提交')
+          else return this.updateStatus(getErrorMessage(code))
+        } else {
+          // 状态码正确 判断是否能fill
+          this.setData({
+            creatorInfo: result.data.data.creatorInfo,
+            station: result.data.data.station
           })
-        } else if (result.data.data.user) {
-          //ticket已填写
-          this.updateStatus('邀请已被接受，请等待确认')
-          this.data.pulling = true
-          this.pulling()
-        }else {
-          //ticket未使用
-          this.setData({status:'',state:'wait'})
+          if (result.data.data == null) {
+            //ticket已使用
+            this.updateStatus('邀请已完成')
+            this.pullTicket(app.globalData.ticket, this.data.userid).then(ticketResult => {
+              console.log('pull ticket', ticketResult)
+              this.checketPullResult(ticketResult.data.data)
+            })
+          } else if (result.data.data.user && result.data.data.user.type == 'pending') {
+            //ticket已填写
+            this.updateStatus('您已申请加入 ' + this.data.station.name + '\n 请等待确认')
+            this.data.pulling = true
+            this.pulling()
+          } else if (false) {
+            // 用户已在ticket所在设备注册过
+
+          } else if (false) {
+            // 用户已填过ticket所在设备的其他tiecket
+          } else {
+            // ticket 未被使用
+            this.setData({ status: '邀请你加入' + this.data.station.name + '.', state: 'wait' })
+          }
         }
+      }).catch(e => {
+        //接口调用失败
+        console.log(e)
+        this.updateStatus('数据请求错误')
       })
       
     }else {
-      //ticket不存在
       this.updateStatus('当前微信用户没有被邀请或绑定硬件设备，请在App中绑定用户后进行操作-2')
       //todo login
     }
@@ -156,16 +178,15 @@ Page({
   //填ticket
   submitTicket() {
     let url = app.globalData.url + '/c/v1/tickets/' + app.globalData.ticket + '/invite'
-    let password = this.data.password
-    let passwordConfirm = this.data.passwordConfirm
-    if (password.length == 0) return wx.showModal({ title: '密码不能为空', showCancel:false}) 
-    if (password !== passwordConfirm) return wx.showModal({ title: '两次密码不一致', showCancel: false } ) 
-    fillTicket(url, password, this.data.token).then(data => {
+    fillTicket(url, this.data.token).then(data => {
       console.log(data)
-      if (data.data.code == 403) return this.setData({ 'status': data.data.message, state:'' })
-      this.setData({ status: '请在App中进行确认:' + app.globalData.ticket, state: '' })
-      this.data.pulling = true
-      this.pulling()
+      if (data.statusCode == 403) {
+        this.setData({ status: getErrorMessage(data.data.code), state: ''})
+      }else {
+        this.setData({ status: '您已申请加入 ' + this.data.station.name + '\n 请等待主人确认', state: '' })
+        this.data.pulling = true
+        this.pulling()
+      }
     }).catch(e => {
       console.log(e)
     })
@@ -173,80 +194,32 @@ Page({
   //轮询ticket
   pulling() {
     if (!this.data.pulling) return
-    this.pullTicket(app.globalData.ticket, this.data.userid).then(ticketResult => {
+    this.getTicket().then(ticketResult => {
+      if (ticketResult.statusCode == 403 && ticketResult.data.code == 60001) {
+        this.updateStatus('你已被添加进群')
+      }
       console.log(ticketResult)
-      this.checketPullResult(ticketResult.data.data)
+      this.checketPullResult(ticketResult.data.data.user)
       setTimeout(this.pulling, 5000)
     })
   },
 
-  pullTicket(ticket,userid) {
-    return new Promise((resolve,reject) => {
-      wx.request({
-        url: app.globalData.url + '/c/v1/tickets/' + ticket + '/users/' + userid,
-        header: { Authorization: this.data.token },
-        success: (result) => resolve(result),
-        fail: err => reject(err)
-      })
-    })
+  // 查询ticket
+  getTicket() {
+    let url = app.globalData.url + '/c/v1/tickets/' + app.globalData.ticket
+    return checkTicket(url, this.data.token)
   },
+
   //处理轮询结果
   checketPullResult(ticketResult) {
     this.data.pulling = false
     if (ticketResult.type == 'resolved') {
       this.updateStatus('你已被添加进群')
-      //todo getGroup
     } else if (ticketResult.type == 'rejected') {
       this.updateStatus('你已被拒绝')
-      //todo getGroup
     } else if (ticketResult.type == 'pending') {
       //nothing
       this.data.pulling = true
     }
-  },
-
-  getGroups() {
-
-  },
-
-  userTest: function() {
-    this.setData({test: true})
-  },
-
-  inputUsername: function(e) {
-    this.setData({username: e.detail.value})
-  },
-
-  inputPassword: function(e) {
-    this.setData({ password: e.detail.value })
-  },  
-
-  inputPasswordConfirm: function(e) {
-    this.setData({ passwordConfirm: e.detail.value })
-  },
-
-  testSubmit: function() {
-    let userName = this.data.username
-    let password = this.data.password
-    console.log({ userName, password })
-    wx.request({
-      url: 'https://13151693.qcloud.la/test/mp/login',
-      header: { Authorization: this.data.token},
-      data:{userName, password},
-      method: 'POST',
-      success: (result) => {
-        console.log(result)
-        if (result.statusCode == 200) {
-          this.setData({ test: false, status: '注册成功' })
-        }else {
-          this.setData({ test: false, status: result.data.message })
-        }
-        
-      },
-      fail: err => {
-        console.log(err)
-        this.setData({ test: false, status: '注册失败' })
-      }
-    })
   }
 })

@@ -1,4 +1,11 @@
- function formatTime(date) {
+var errCodeObj = {
+  60001: '用户已存在',
+  60200: '邀请码错误',
+  60202: '邀请码已过期',
+  60204: '您已申请过加入设备，无需重复提交'
+}
+
+function formatTime(date) {
   var year = date.getFullYear()
   var month = date.getMonth() + 1
   var day = date.getDate()
@@ -64,17 +71,23 @@ function checkTicket(url,token) {
   })
 }
 
-function fillTicket(url, password, token) {
+function fillTicket(url, token) {
   return new Promise((resolve, reject) => {
     wx.request({
       url: url,
       method: 'POST',
-      data: { password: password },
+      // data: { password: password },
       header: { Authorization: token },
       success: (result) => resolve(result),
       fail: err => reject(err)
     })
   })
+}
+
+function getErrorMessage(errCode) {
+  let message = errCodeObj[errCode]
+  if (message) return message
+  else return errCode + '： 未知错误'
 }
 
 module.exports = {
@@ -83,5 +96,6 @@ module.exports = {
   wxGetUserInfo: wxGetUserInfo,
   login: login,
   checkTicket: checkTicket,
-  fillTicket: fillTicket
+  fillTicket: fillTicket,
+  getErrorMessage: getErrorMessage
 }

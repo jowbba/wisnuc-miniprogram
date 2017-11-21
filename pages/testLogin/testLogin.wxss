@@ -1,0 +1,37 @@
+/* pages/testLogin/testLogin.wxss */
+Page {
+  width: 100%;
+  height: 100%;
+}
+
+#login-message {
+  width: 100%;
+  padding: 0 10%;
+  box-sizing: border-box;
+  font-size: 16px;
+  text-align: center;
+  color: #666;
+}
+
+.login-test {
+  padding: 50px 0px 0px;
+}
+
+.login-test view{
+  display: flex;
+  flex-flow: row nowrap;
+  font-size:14px;
+  color:#666;
+  height: 30px;
+  line-height: 30px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.login-test label {
+  width: 80px;
+}
+
+.login-test input {
+  border: 1px solid #999
+}

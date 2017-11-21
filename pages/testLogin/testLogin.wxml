@@ -1,0 +1,15 @@
+<!--pages/testLogin/testLogin.wxml-->
+<view class="login-test ">
+
+  <text id='login-message' wx:if="{{logined}}">{{status}}</text>
+
+  <view class="login-username" wx:if='{{!logined}}'>
+    <label class= 'login-test-label'>测试用户名</label>
+    <input type="text" bindinput="inputUsername"/>
+  </view>
+  <view class="login-password" wx:if='{{!logined}}'>
+    <label class= 'login-test-label'>测试密码</label>
+    <input type="password" bindinput="inputPassword"/>
+  </view>
+  <button bindtap="testSubmit" wx:if='{{!logined}}'>提交</button>
+</view>
