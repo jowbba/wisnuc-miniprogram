@@ -1,0 +1,47 @@
+<!--home.wxml-->
+<view class="home-container">
+
+  <block id="group-list-container" wx:for='{{groupList}}' wx:key='{{uuid}}' wx:for-item='group'>
+    <view id='{{group.uuid}}' class="group" bindtap="openGroup" data-group='{{index}}'>
+      <!--screenshot-->
+      <view class="group-screenshot">
+        <block wx:for='{{group.users}}' wx:key='uuid' wx:for-item='user'>
+          <image wx:if='{{index<4}}' src="{{user.userInfo.avatarUrl}}"></image>
+        </block>
+      </view>
+      <!--description-->
+      <view class="group-description">
+        <view class="group-name">
+          <text>{{group.name}}</text>
+        </view>
+        <view class="group-detail">
+          <view wx:if='{{group.commits.length == 1}}'>
+            <text wx:if='{{group.commits[0].type == "text"}}'>{{group.commits[0].user.username}} : {{group.commits[0].description}}</text>
+            <text wx:if='{{group.commits[0].type == "photo"}}'>{{group.commits[0].user.username}} : [照片]</text>
+            <text wx:if='{{group.commits[0].type == "record"}}'>{{group.commits[0].user.username}} : [音频]</text>
+          </view>
+        </view>
+      </view>
+      <!--lastUpdate time-->
+      <view class="group-updateTime">
+        <text wx:if='{{item.commits.length==1}}'>{{item.commits[0].updatedAt}}</text>
+      </view>
+    </view>
+  </block>
+
+  <view class='create-grout-icon' bindtap="openCreateGroup">
+    <image src="../../images/fab1@3x.png"></image>
+  </view>
+
+  <view class="create-group-container" id='frame' wx:if='{{createGroup}}' bindtap="touchDialog">
+    <view id='content' class="create-group-form">
+      <view class="create-group-input">
+        <label>名称:</label>
+        <input bindinput='inputGroupName' />
+      </view>
+      <view class="create-group-button">
+        <button bindtap="createGroup">提交</button>
+      </view>
+    </view>
+  </view>
+</view>

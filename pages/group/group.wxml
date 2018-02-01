@@ -1,0 +1,126 @@
+<view id="group-container">
+  <!--toggle header -->
+  <view id="toggle-header" class='{{scrollTool?"":"hidden"}}' bindtap="toggleHeader">
+    <image src="../../images/bookmark.png"></image>
+  </view>
+  <!--group header-->
+  <view id="group-header"  class='{{scrollTool?" ":"hidden"}}'>
+    <!--添加 pin  -->
+    <view class="addpin-button" bindtap="openSettingPin">
+      <image src="../../images/add.png"></image>
+      <text>创建置顶</text>
+    </view>
+    <!--flex 在scroll-view里面是无效的  -->
+    <scroll-view scroll-x='true' class="flex-frame">
+       <block wx:for='{{boxs}}' wx:key='objectId' wx:for-item='box'>
+        <view class="pin" data-id="{{box.objectId}}" bindtap="openBox">
+          <view class="{{box.commits.length==0?'pin-thumbnail empty':'pin-thumbnail'}}">
+            <block wx:for="{{box.commits}}" wx:key="*this" wx:for-item='url'>
+              <image src="{{url}}" wx:if="{{index < 4}}"></image>
+            </block>
+            <image src="../../images/star.png" wx:if="{{box.commits.length==0}}"></image>
+          </view>
+          <text>{{box.name}}</text>
+        </view>  
+      </block>
+    </scroll-view>
+  </view>
+
+  <!--group content-->
+  <scroll-view class='{{scrollTool?" ":"long"}}' id="group-content" scroll-y  scroll-into-view='toView{{toView}}' scroll-top="0" bindscroll="scroll">
+    <block wx:for='{{tweets}}' wx:key='index'>
+      <view class="{{item.tweeter.id == currentUserID?'commit-container myself':'commit-container'}}" id='toView{{item.uuid}}'>
+        <template is="commit" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
+      </view>
+    </block>
+  </scroll-view>
+
+  <!--group footer-->
+  <view id="group-footer">
+    <image class="record" src="../../images/imc.png" mode='aspectFit' bindtouchstart="startRecord" bindtouchend="stopRecord"></image>
+    <input class="text-input" cursor-spacing='10' bindinput="input" value='{{inputValue}}'></input>
+    <image wx:if='{{!inputValue}}' class="camera" src="../../images/camera.png" mode='aspectFit' bindtap="openCamera"></image>
+    <image wx:if='{{!inputValue}}' class="photo" src="../../images/video.png" mode='aspectFit' bindtap="navToSetting"></image>
+    <image wx:if='{{!inputValue}}' class="photo" src="../../images/setting.png" mode='aspectFit' bindtap="navToSetting"></image>
+    <view wx:if='{{inputValue}}' class="submit" bindtap="commitText">发送</view>
+  </view>
+
+  <!--template tweet-->
+  <template name='commit'>
+    <image class='commit-avatar' src="{{tweet.tweeter.avatarUrl}}"></image>
+    <view class='commit-avatar-point'/>
+    <view class="commit-main">
+      <view class="commit-user">
+        <text wx:if='{{tweet.user.objectId !== currentUserID}}'>{{tweet.tweeter.id}}</text>
+        <text>{{tweet.ctime}}</text>
+      </view>
+      <template is='{{tweet.cType}}' data='{{id:id,tweet}}'></template>
+    </view>
+    <text class='commit-updateTime'>{{tweet.updateTime}}</text>
+  </template>
+
+  <!--template text-->
+  <template name='text'>
+    <text class="commit-content text">{{tweet.comment}}</text>
+  </template>
+
+  <!--template file-->
+  <template name='file'>
+    <view class="commit-content file">
+      <view class='icon'>
+        <image src='../../images/ic_folder.png' mode='aspectFit'/>
+      </view>
+      <view class='description'>
+        <view>
+          <text decode='true'>分享&nbsp;</text>
+          <text class='filename'>'{{tweet.list[0].filename}}</text>
+          <text class='filename'>' </text>
+          <text decode='true'>&nbsp;等{{tweet.list.length}}个文件</text>
+        </view>
+        <view>{{tweet.totalSize|| '0.2M'}}</view>
+      </view>
+    </view>
+  </template>
+
+  <!--template photo-->
+  <template name='photo'>
+    <!--单独的照片上传描述  -->
+    <view class="photo-description" wx:if="{{!tweet.box && tweet.comment}}">
+      <text>{{tweet.comment}}</text>
+    </view>
+    <!--照片列表  -->
+    <view class="commit-content photo">
+      <block wx:for='{{tweet.list}}' wx:key='sha256'>
+        <image src="{{item.url}}" mode='aspectFill' wx:if='{{(tweet.list.length<7||(index<5))}}' data-url='{{item}}' data-id='{{id}}' bindtap="previewImage" />
+        <view class="view-more" wx:if='{{index==5&&tweet.list.length>6}}'>
+          <image src="{{item.url}}" data-id='{{id}}' mode='aspectFill'/>
+          <view data-id='{{id}}' bindtap="openCommit">+{{tweet.list.length - 5}}</view>
+        </view>
+      </block>
+    </view>
+    <!--往盒子中添加照片信息  -->
+    <view class="photo-name" wx:if="{{tweet.box}}">
+      <text data-id='{{tweet.box.objectId}}' bindtap="openBox2">#{{tweet.box.name}}</text>
+      <text>中加入{{tweet.content.length}}个文件</text>
+    </view>
+  </template>
+
+  <!--template record-->
+  <template name='record'>
+    <view class="commit-content record" bindtap="controlVoice" data-url='{{tweet.content[0]}}' data-id='{{id}}'>
+      <view class="vioce-playing" wx:if='{{tweet.play}}' />
+      <view class="vioce-stoped" wx:if='{{!tweet.play}}' />
+    </view>
+  </template>
+
+  <view id="create-pin-container" wx:if="{{settingPin}}" bindtap="touchDialog">
+    <view class="create-pin-form">
+      <view class="pin-title">新建置顶</view>
+      <view class="pin-input-frame">
+        <input type="text" placeholder="请输入置顶名" placeholder-class='pin-input-class' bindinput="inputBoxName"/>
+        <button bindtap="createBox">确定</button>
+      </view>
+    </view>
+  </view>
+
+</view>

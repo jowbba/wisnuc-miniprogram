@@ -12,11 +12,10 @@ Page({
     state:'',
     ticket: false,
     userInfo: {},
-    userid: '',
+    user: '',
     token: '',
     creatorInfo: {},
     test: false,
-    
     pulling:false
   },
 
@@ -25,34 +24,6 @@ Page({
    */
   onLoad: function (options) {
     this.tryLogin()
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-    
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-  
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-  
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-  
   },
 
   /**
@@ -66,13 +37,6 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-  
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
   
   },
 
@@ -92,30 +56,27 @@ Page({
     this.updateStatus('正在读取登录信息...')
     // 获取code
     wxlogin().then(data => {
-      // console.log('wx-login 返回结果：', data)
       code = data.code
       this.updateStatus('正在读取用户信息...')
       //获取用户信息
       return wxGetUserInfo()
     }).then(result => {
-      // console.log('wx-getUserInfo 返回结果：', result)
-      iv = result.iv
-      encryptedData = result.encryptedData
-      let userInfo = JSON.parse(result.rawData)
-      app.userInfo = userInfo
+      let { iv, userInfo, encryptedData} = result
+      // let userInfo = result.userInfo
+      app.globalData.userInfo = userInfo
       this.setData({ userInfo, status:'正在登录...' })
       let url = app.globalData.url + '/c/v1/token'
+      console.log(app)
       //获取token
       return login(url, code, iv, encryptedData)
     }).then(loginResult => {
-      console.log('登录结果：', loginResult)
-      if (loginResult.statusCode == 200) {
-        this.data.token = loginResult.data.data.token
-        this.data.userid = loginResult.data.data.user.id
+        let { token, user } = loginResult.data.data
+        app.globalData.user = user
+        app.globalData.token = token
+        this.setData({token, user})
         this.updateStatus('当前微信用户没有被邀请或绑定硬件设备，请在App中绑定用户后进行操作-0')
         //处理ticket
         this.tryTicket()
-      }else throw new Error('登录失败')
     }).catch(e => {
       console.log('错误信息： ', e)
       this.updateStatus('登录微信账号发生错误')
@@ -168,6 +129,9 @@ Page({
     }else {
       this.updateStatus('当前微信用户没有被邀请或绑定硬件设备，请在App中绑定用户后进行操作-2')
       //todo login
+      wx.switchTab({
+        url: '../home/home',
+      })
     }
   },
 

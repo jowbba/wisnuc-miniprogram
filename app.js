@@ -12,9 +12,11 @@ App({
   },
 
   globalData: {
+    // url: 'http://10.10.9.87:4000',
+    url: 'http://test.siyouqun.com',
     userInfo: null,
     ticket:'',
-    url: 'https://91689709.siyouqun.org'
-    // url: 'http://10.10.9.59:4000'
+    currentGroup: null,
+    tempFilePaths: []
   }
 })

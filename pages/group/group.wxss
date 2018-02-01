@@ -1,0 +1,546 @@
+Page {
+  width: 100%;
+  height:100%;
+  background: #fafafa;
+}
+/*layout*/
+#group-header {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height:113px;
+  padding:16px 0px 16px 16px;
+  border-bottom: 1px solid #e5e5e5;
+  transition: all 0.3s;
+  z-index: 30;
+  background: #fff;
+  /* hidden pin  */
+  overflow: hidden;
+  height: 0px;
+  padding: 0px;
+}
+
+#group-header.hidden {
+  height: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+#toggle-header {
+  width: 36px;
+  height: 36px;
+  position: absolute;
+  top: 106px;
+  right: 10px;
+  transition: all 0.3s;
+  z-index: 20;
+  opacity: .87;
+  /* hidden pin  */
+  display: none;
+}
+
+#toggle-header image {
+  width: 36px;
+  height: 36px;
+}
+
+#toggle-header.hidden {
+  top: -5px;
+  opacity: .5;
+}
+
+#group-content {
+  height: calc(100% - 113px - 48px); 
+  box-sizing: border-box;
+  padding-top: 16px;
+  transition: all .3s;
+  z-index: 10;
+  /* hidden pin  */
+  height: calc(100% - 48px); 
+}
+
+#group-content.long {
+  height: calc(100% - 48px);
+}
+
+#group-container {
+  position:relative;
+  height:100%;
+  overflow: scroll;
+  /* padding-bottom: 50px; */
+  box-sizing: border-box;
+}
+
+#group-footer {
+  position: fixed;
+  bottom: 0px;
+  height:48px;
+  width:100%;
+  border-top: 1px solid #999;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding:0 8px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+#group-footer image {
+  width:24px;
+  height:24px;
+  margin:0 8px 0 0;
+  opacity: .5;
+  flex-shrink: 0;
+}
+
+#group-footer image:first-of-type {
+  margin-left:8px;
+}
+
+#group-footer image:last-of-type {
+  margin-right: 8px;
+}
+
+#group-footer .text-input {
+  width: 198px;
+  height:24px;
+  line-height: 24px;
+  flex-grow:10;
+  border: 1px solid #999;
+  padding:0 10px;
+  margin-right: 8px;
+}
+
+#group-footer .submit {
+  height:30px;
+  line-height: 30px;
+  width:100px;
+  text-align: center;
+  background:#58bb20;
+  color:#fff;
+  margin-left:10px;
+}
+/*pin*/
+
+.flex-frame {
+  box-sizing: border-box;
+  /* border: 1px solid #333; */
+  width: calc(100% - 16px - 63px - 12px);
+  height: 80px;
+  white-space: nowrap;
+  padding-left: 8px;
+}
+
+.addpin-button {
+  width:63px;
+  height: 63px;
+  line-height: 63px;
+  text-align: center;
+  box-sizing: border-box;
+  position: absolute;
+  right: 0px;
+  top: 16px;
+  transition: all .3s;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  background: #fafafa;
+  /* hidden pin  */
+}
+
+.addpin-button image {
+  width: 30px;
+  height: 30px;
+}
+
+.addpin-button text {
+  font-size: 10px;
+  height: 10px;
+  line-height: 10px;
+  color: rgba(0,0,0,.38)
+}
+
+#group-header.hidden .addpin-button {
+  top:0px;
+}
+
+.pin {
+  width: 80px;
+  height: 100%;
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.pin-thumbnail {
+  width: 63px;
+  height: 63px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  white-space: pre-wrap;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.pin-thumbnail.empty {
+  display: table-cell;
+  vertical-align: middle;
+  position: relative;
+  left: 8.5px;
+  background: #fafafa;
+}
+
+.pin-thumbnail image{
+  width: 31px;
+  height: 31px;
+  display: inline-block;
+}
+
+.pin-thumbnail image:nth-child(2n-1) {
+  margin-right: 1px;
+}
+
+.pin-thumbnail.empty image {
+  margin: 0 auto;
+  display: block; 
+}
+
+.pin text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink:1;
+  font-size: 12px;
+  height: 17px;
+  line-height: 17px;  
+  color: #212121;
+  text-align: center;
+  display: block;
+  position: relative;
+  top: 2px;
+}
+
+/*commit*/
+.commit-container {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 0 0 16px;
+  padding:0 12px;
+}
+
+.commit-container.myself {
+  flex-flow: row-reverse wrap;
+}
+
+.commit-avatar{
+  width:40px;
+  height:40px;
+  flex-shrink:0;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.commit-container.myself .commit-avatar {
+  margin-left: 8px;
+  display: none;
+}
+
+.commit-avatar-point {
+  background: red;
+  border-radius: 50%;
+  width: 4px;
+  height: 4px;
+  display: none;
+  margin: 4px 0 0 8px;
+}
+
+.commit-container.myself .commit-avatar-point {
+  display: block;
+}
+
+.commit-main {
+  /* display: flex; */
+  flex-flow: column nowrap;
+  overflow: hidden;
+  width: 273px;
+}
+
+.commit-container.myself .commit-main {
+  text-align: right;
+}
+
+.commit-updateTime {
+  width:100%;
+  margin-top:32px;
+  text-align: center;
+  color: #b2b2b2;
+  font-size:12px;
+  display: none; 
+}
+
+.commit-user {
+  color:rgba(0,0,0,.3);
+  margin-bottom: 6px;
+  height: 18px;
+
+}
+
+.commit-container.myself .commit-user {
+  overflow: hidden;
+}
+
+.commit-user text {
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  height: 18px;
+  line-height: 18px;
+  font-size: 12px;
+  float: left;
+}
+
+.commit-container.myself .commit-user text {
+ float: right; 
+}
+
+.commit-user text:first-child {
+  max-width: 50px;
+  margin-right: 8px;
+  color: rgba(0,0,0,.54)
+}
+
+.commit-container.myself .commit-user text:first-child {
+ margin: 0 0 0 8px;
+}
+
+
+.commit-content {
+  overflow: hidden;
+}
+
+.commit-container.myself .commit-content {
+  text-align: right;
+}
+
+/*commit-text*/
+.commit-content.text {
+  font-size:13px;
+  color: rgba(0,0,0,.87);
+  /* padding:10px; */
+  background: #fff;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,.3);
+  display: inline-block;
+  margin: 0 0 0 2px;
+  border-radius: 0 5px 5px 5px;
+  text-align: left;
+  line-height: 19px;
+  padding: 7px;
+}
+
+.commit-container.myself .commit-content.text {
+  background: #03a9f4;
+  color: #fff;
+  margin: 0 2px 0 0;
+  border-radius: 5px 0px 5px 5px;
+}
+/*commit-photo*/
+.commit-content.photo {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.commit-container.myself .commit-content.photo {
+  justify-content: flex-end;
+}
+
+.commit-content.photo image, .view-more {
+  width:89px;
+  height: 89px;
+  margin:0 2px 2px 0;
+  flex-basis:89px;
+  position: relative;
+}
+
+.view-more view {
+  text-align: center;
+  font-size:26px;
+  width:100%;
+  line-height: 80px;
+  color: #fff;
+  position: absolute;
+  top:0px;
+  left: 0px;
+}
+
+.view-more image{
+  width: 100%;
+  height: 100%;
+  filter:blur(2px);
+}
+
+.photo-name {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.commit-container.myself .photo-name {
+  text-align: right;
+}
+
+.photo-name text:first-child{
+  color: #03a9f4
+}
+
+.photo-name text:last-child {
+  color: #b2b2b2;
+}
+
+.photo-description {
+  font-size:13px;
+  color: rgba(0,0,0,.87);
+  margin-bottom:2px;
+}
+
+.commit-container.myself .photo-description {
+  text-align: right;
+}
+/*commit-vioce*/
+
+.vioce-playing {
+  width: 10px;
+  height: 10px;
+  background-color: #58bb20;
+}
+
+.vioce-stoped {
+  width: 0px;
+  height: 0px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 10px solid #58bb20; 
+}
+
+/*content file  */
+.commit-content.file {
+  width: 100%;
+  max-width: 269px;
+  height: 56px;
+  background: #fff;
+  position: relative
+}
+
+.commit-content.file .icon {
+  width: 56px;
+  height: 56px;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.commit-content.file .icon image {
+  width: 25px;
+  height: 25px;
+  display: block;
+  margin: 0 auto;
+}
+
+.commit-content.file .description {
+  width: calc(100% - 56px);
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.commit-content.file .description view {
+  height: 50%;
+  line-height: 28px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.commit-content.file .description view text {
+  display: table-cell;
+  vertical-align: middle;
+  height: 28px;
+}
+
+.commit-content.file .description view text.filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60px;
+  color: #03a9f4;
+}
+
+.commit-content.file .description view:nth-child(1) {
+  font-size: 14px;
+  color: rgba(0, 0, 0, .87)
+}
+
+.commit-content.file .description view:last-child {
+  font-size: 12px;
+  color: rgba(0, 0, 0, .54)
+}
+
+/*setting pin  */
+#create-pin-container {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 0px;
+  transition: all 0.3s ease-in-out;
+}
+
+.create-pin-form {
+  box-sizing: border-box;
+  width: 320px;
+  height: 172px;
+  background: white;
+  position: absolute;
+  top: 50%;
+  margin-top: -86px;
+  left: 50%;
+  margin-left: -160px;
+}
+
+.pin-title {
+  height: 48px;
+  line-height: 48px;
+  font-size: 18px;
+  color: #353535;
+  border-bottom: 1px solid #e5e5e5;
+  text-align: center;
+}
+
+.pin-input-frame {
+  height: calc(100% - 48px);
+  box-sizing: border-box;
+  padding: 14px 16px 16px;
+}
+
+.pin-input-frame input {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 14px;
+  padding-left: 12px;
+  box-sizing: border-box;
+  border: 1px solid #e5e5e5;
+}
+
+.pin-input-class {
+  font-size: 16px;
+  color: #888;
+}
+
+.pin-input-frame button {
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  color: #fff;
+  background: #03a9f4;
+}
