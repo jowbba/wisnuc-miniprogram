@@ -123,6 +123,46 @@ Page {
   color:#fff;
   margin-left:10px;
 }
+
+/*create tweet button  */
+#create-tweet-button {
+  width: 56px;
+  height: 56px;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+}
+
+.float-button {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #03a9f4;
+  box-shadow: 0 0 5px #212121;
+}
+
+.float-button view {
+  background: #fff;
+  width: 12px;
+  height: 2px;
+  margin-left: -6px;
+  margin-top: -1px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+.float-button view:last-child {
+  transform: rotate(90deg)
+}
+
+#create-tweet-button > view:not(:first-child) {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
 /*pin*/
 
 .flex-frame {
@@ -361,8 +401,12 @@ Page {
   width:89px;
   height: 89px;
   margin:0 2px 2px 0;
-  flex-basis:89px;
   position: relative;
+}
+
+.commit-content.photo image.large {
+  width: 134px;
+  height: 134px;
 }
 
 .view-more view {

@@ -1,0 +1,55 @@
+<!--pages/groupSetting/groupSetting.wxml-->
+
+<view class="page-frame">
+  <view class="setting-title">
+    <text>群成员</text>
+    <view class="member-message">有x位新成员申请加入</view>
+    <view class='placeholder'>新成员</view>
+  </view>
+
+  <view id="setting-userList">
+    <block wx:for='{{users}}' wx:key='id'>
+      <view class="setting-user">
+        <view class="setting-user-avatar">
+          <image src="{{item.userInfo.avatarUrl}}"></image>
+          <text>{{item.username}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="setting-title">属性</view>
+  <view class="setting-row no-border">
+    <text class="setting-label">群名称</text>
+    <text class="setting-text">闻上大本营 ></text>
+  </view>
+  <view class="setting-row">
+    <text class="setting-label">设备信息</text>
+    <text class="setting-text">WISNUC-HOME ></text>
+  </view>
+
+
+  <view class="setting-title">消息通知</view>
+  <view class="setting-row no-border">
+    <text class="setting-label">消息免打扰</text>
+    <switch type="switch"  checked='true'/>
+  </view>
+
+
+  <view class="setting-title">群管理</view>
+  <view class="setting-row no-border">
+    <text class="setting-label">群邀请确认</text>
+    <switch type="switch" />
+  </view>
+  <view class="setting-row">
+    <text class="setting-label">需要审核</text>
+    <switch type="switch" checked='true' />
+  </view>
+  <view class="setting-row">
+    <text class="setting-label">群转让</text>
+    <text class="setting-text"> ></text>
+  </view>
+
+  <button class="setting-logout" type='warn'>退出</button>
+  
+</view>

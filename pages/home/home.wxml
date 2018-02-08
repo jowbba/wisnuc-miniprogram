@@ -6,25 +6,23 @@
       <!--screenshot-->
       <view class="group-screenshot">
         <block wx:for='{{group.users}}' wx:key='uuid' wx:for-item='user'>
-          <image wx:if='{{index<4}}' src="{{user.userInfo.avatarUrl}}"></image>
+          <image wx:if='{{index<4}}' src="{{user.avatarUrl}}"></image>
         </block>
       </view>
       <!--description-->
       <view class="group-description">
         <view class="group-name">
-          <text>{{group.name}}</text>
+          <text>{{group.name || '群聊'}} {{group.station.isOnline?'':'（设备离线）'}}</text>
         </view>
         <view class="group-detail">
-          <view wx:if='{{group.commits.length == 1}}'>
-            <text wx:if='{{group.commits[0].type == "text"}}'>{{group.commits[0].user.username}} : {{group.commits[0].description}}</text>
-            <text wx:if='{{group.commits[0].type == "photo"}}'>{{group.commits[0].user.username}} : [照片]</text>
-            <text wx:if='{{group.commits[0].type == "record"}}'>{{group.commits[0].user.username}} : [音频]</text>
-          </view>
+          <text wx:if='{{group.tweet.cType == "text"}}'>{{group.tweet.tweeter.nickName}} : {{group.tweet.comment}}</text>
+          <text wx:if='{{group.tweet.cType == "photo"}}'>{{group.tweet.tweeter.nickName}} : [照片]</text>
+          <text wx:if='{{group.tweet.cType == "file"}}'>{{group.tweet.tweeter.nickName}} : [文件]</text>
         </view>
       </view>
       <!--lastUpdate time-->
       <view class="group-updateTime">
-        <text wx:if='{{item.commits.length==1}}'>{{item.commits[0].updatedAt}}</text>
+        <text wx:if='{{group.tweet}}'>{{group.tweet.ctime}}</text>
       </view>
     </view>
   </block>

@@ -45,13 +45,23 @@
     <view wx:if='{{inputValue}}' class="submit" bindtap="commitText">发送</view>
   </view>
 
+  <view id='create-tweet-button'>
+    <view class='float-button'>
+      <view></view>
+      <view></view>
+    </view>
+    <view class=''></view>
+    <view class=''></view>
+  </view>
+
+
   <!--template tweet-->
   <template name='commit'>
     <image class='commit-avatar' src="{{tweet.tweeter.avatarUrl}}"></image>
     <view class='commit-avatar-point'/>
     <view class="commit-main">
       <view class="commit-user">
-        <text wx:if='{{tweet.user.objectId !== currentUserID}}'>{{tweet.tweeter.id}}</text>
+        <text wx:if='{{tweet.user.objectId !== currentUserID}}'>{{tweet.tweeter.nickName}}</text>
         <text>{{tweet.ctime}}</text>
       </view>
       <template is='{{tweet.cType}}' data='{{id:id,tweet}}'></template>
@@ -91,7 +101,7 @@
     <!--照片列表  -->
     <view class="commit-content photo">
       <block wx:for='{{tweet.list}}' wx:key='sha256'>
-        <image src="{{item.url}}" mode='aspectFill' wx:if='{{(tweet.list.length<7||(index<5))}}' data-url='{{item}}' data-id='{{id}}' bindtap="previewImage" />
+        <image src="{{item.url}}" mode='aspectFill' class="{{tweet.list.length<3?'large':''}}" wx:if='{{(tweet.list.length<7||(index<5))}}' data-url='{{item}}' data-id='{{id}}' bindtap="previewImage" />
         <view class="view-more" wx:if='{{index==5&&tweet.list.length>6}}'>
           <image src="{{item.url}}" data-id='{{id}}' mode='aspectFill'/>
           <view data-id='{{id}}' bindtap="openCommit">+{{tweet.list.length - 5}}</view>
@@ -122,5 +132,6 @@
       </view>
     </view>
   </view>
+  
 
 </view>

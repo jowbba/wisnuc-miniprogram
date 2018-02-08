@@ -21,12 +21,32 @@ Page({
 
   // 初始化 获取群列表
   init: function () {
+    app.globalData.currentGroup = null
     wx.showLoading()
-    util.getGroupList().then(data => {
+    util.getBox().then(data => {
+      data.forEach(box => {
+        let item = box.tweet
+        if (!item) return
+        if (item.list.length == 0) item.cType == 'text'
+        else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
+        else item.cType = 'file'
+
+        item.ctime = (new Date(item.ctime)).toLocaleString()
+        let tweeter = box.users.find(user => user.id === item.tweeter)
+        if (tweeter) {
+          item.tweeter = tweeter  
+        }else {
+          item.tweeter = { nickName: '未知' }
+        }
+        
+      })
+
+      console.log(data)
       wx.hideLoading()
       
       this.setData({ groupList: data })
     }).catch(e => {
+      console.log(e)
       wx.hideLoading()
       wx.showModal({
         title: '获取服务器数据错误',

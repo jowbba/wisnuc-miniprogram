@@ -61,7 +61,11 @@ Page({
   },
 
   init() {
-    util.getTweetsWithId().then(tweets => {
+    let group = app.globalData.currentGroup
+    let boxUUID = group.uuid
+    let apiUrl = '/boxes/' + boxUUID + '/tweets'
+    util.stationJson(apiUrl, 'GET', { metadata: true }).then(tweets => {
+      console.log(tweets)
       tweets.forEach(item => {
         if (item.list.length == 0) item.cType == 'text'
         else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
@@ -70,12 +74,33 @@ Page({
         item.ctime = (new Date(item.ctime)).toLocaleString()
         // total size 
         item.totalSize = 0
-        item.list.forEach(file => item.totalSize += (typeof file.size === 'number' && !isNaN(file.size))?file.size:0)
+        if (item.tweeter) {
+          let tweeter = group.users.find(user => user.id === item.tweeter.id)
+          if (tweeter && tweeter.avatarUrl) item.tweeter.avatarUrl = tweeter.avatarUrl
+          if (tweeter && tweeter.nickName) item.tweeter.nickName = tweeter.nickName
+          else item.tweeter.nickName = '未知'
+        }else {
+          item.tweeter = {}
+          item.tweeter.nickName = '未知'
+        }
+        item.list.forEach(file => {
+          item.totalSize += (typeof file.size === 'number' && !isNaN(file.size)) ? file.size : 0
+          if (item.ctype !== 'photo') return
+          //get image from finished queue 
+          if (false) {
+            //todo
+          } else {
+
+          }
+        })
         item.totalSize = util.formatSize(item.totalSize)
       })
       console.log(tweets)
-      this.setData({tweets})
-    }).catch(e => console.log(e))
+      this.setData({ tweets })
+    }).catch(e => {
+      console.log(e)
+    })
+
   },
 
 

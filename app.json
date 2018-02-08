@@ -4,7 +4,8 @@
     "pages/testLogin/testLogin",
     "pages/home/home",
     "pages/inbox/inbox",
-    "pages/group/group"
+    "pages/group/group",
+    "pages/groupSetting/groupSetting"
   ],
   "window":{
     "backgroundTextStyle":"light",
