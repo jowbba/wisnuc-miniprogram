@@ -27,7 +27,8 @@ Page({
       data.forEach(box => {
         let item = box.tweet
         if (!item) return
-        if (item.list.length == 0) item.cType == 'text'
+        if (item.type == 'boxmessage') item.cType = 'message'
+        else if (item.list.length == 0) item.cType = 'text'
         else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
         else item.cType = 'file'
 
@@ -42,6 +43,7 @@ Page({
       })
 
       console.log(data)
+      wx.stopPullDownRefresh()
       wx.hideLoading()
       
       this.setData({ groupList: data })
@@ -64,11 +66,15 @@ Page({
     this.init()
   },
 
+  onPullDownRefresh: function() {
+    this.init()
+  },
+
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-    this.init()
+    
   },
 
   //打开创建群对话窗

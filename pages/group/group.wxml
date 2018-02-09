@@ -27,10 +27,11 @@
   </view>
 
   <!--group content-->
-  <scroll-view class='{{scrollTool?" ":"long"}}' id="group-content" scroll-y  scroll-into-view='toView{{toView}}' scroll-top="0" bindscroll="scroll">
+  <scroll-view class='{{scrollTool?" ":"long"}}' id="group-content" scroll-y  scroll-into-view='{{toView}}' bindscroll="scroll">
     <block wx:for='{{tweets}}' wx:key='index'>
       <view class="{{item.tweeter.id == currentUserID?'commit-container myself':'commit-container'}}" id='toView{{item.uuid}}'>
-        <template is="commit" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
+        <template wx:if="{{item.cType !== 'message'}}" is="commit" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
+        <template wx:if="{{item.cType == 'message'}}" is="message" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
       </view>
     </block>
   </scroll-view>
@@ -53,6 +54,11 @@
     <view class=''></view>
     <view class=''></view>
   </view>
+
+  <!--template tweet-->
+  <template name='message'>
+    <text class='commit-message'>{{tweet.message}}</text>
+  </template>
 
 
   <!--template tweet-->

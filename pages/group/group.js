@@ -9,7 +9,7 @@ Page({
     boxs: [],
     inputValue: '',
     inputBoxName: '',
-    currentUserID: '123',
+    currentUserID: '',
     toView: '',
     scrollTool: true,
     settingPin: false
@@ -20,9 +20,11 @@ Page({
    */
   onLoad: function (options) {
     let group = app.globalData.currentGroup
+    let currentUserID = app.globalData.user.id
     if (!group) wx.navigateBack({})
-    this.setData({ group, boxs: [] })
-    console.log(this.data.group)
+    this.setData({ group, currentUserID })
+    this.init()
+    // console.log(this.data.group)
   },
 
   /**
@@ -36,15 +38,14 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    this.init()
   },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function () {
-
-  },
+  // onPullDownRefresh: function () {
+  //   console.log('??')
+  // },
 
   /**
    * 页面上拉触底事件的处理函数
@@ -65,13 +66,19 @@ Page({
     let boxUUID = group.uuid
     let apiUrl = '/boxes/' + boxUUID + '/tweets'
     util.stationJson(apiUrl, 'GET', { metadata: true }).then(tweets => {
-      console.log(tweets)
-      tweets.forEach(item => {
-        if (item.list.length == 0) item.cType == 'text'
-        else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
-        else item.cType = 'file'
+      tweets.forEach((item, tweetIndex) => {
         // date
         item.ctime = (new Date(item.ctime)).toLocaleString()
+        // contentType
+        if (item.type == 'boxmessage') {
+          item.cType = 'message'
+          item.message = this.getMessage(JSON.parse(item.comment))
+          return
+        }
+        else if (item.list.length === 0) item.cType = 'text'
+        else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
+        else item.cType = 'file'
+        
         // total size 
         item.totalSize = 0
         if (item.tweeter) {
@@ -83,22 +90,40 @@ Page({
           item.tweeter = {}
           item.tweeter.nickName = '未知'
         }
-        item.list.forEach(file => {
+        
+        item.list.forEach((file, listIndex) => {
           item.totalSize += (typeof file.size === 'number' && !isNaN(file.size)) ? file.size : 0
-          if (item.ctype !== 'photo') return
+        })
+        item.totalSize = util.formatSize(item.totalSize)
+      })
+      this.setData({ tweets, toView: 'toView' + tweets[tweets.length - 1].uuid })
+      // add download image task
+      this.data.tweets.forEach((tweet, tweetIndex) => {
+        if (tweet.cType !== 'photo') return
+        tweet.list.forEach((file, listIndex) => {
+          if (listIndex > 6) return
           //get image from finished queue 
           if (false) {
             //todo
           } else {
-
+            let boxUUID = group.uuid
+            app.addDownloadTask(boxUUID, tweetIndex, listIndex, file.sha256, file.metadata, this.callback.bind(this))
           }
         })
-        item.totalSize = util.formatSize(item.totalSize)
       })
-      console.log(tweets)
-      this.setData({ tweets })
+
     }).catch(e => {
       console.log(e)
+      wx.showModal({
+        title: '获取消息列表错误',
+        cancelText: '返回',
+        confirmText: '重试',
+        success: res => {
+          if (res.confirm) this.init()
+          else wx.navigateBack()
+        },
+        fail: () => wx.navigateBack()
+      })
     })
 
   },
@@ -371,5 +396,32 @@ Page({
         console.log(err)
       }
     })
+  },
+
+  callback: function(task) {
+    let tweet = this.data.tweets.find(item => item.index == task.tweetIndex)
+    if (!tweet) return
+    let listItem = tweet.list[task.listIndex]
+    listItem.url = task.url
+    this.setData({ tweets: this.data.tweets})
+  },
+
+  getMessage: function(obj) {
+    let message = ''
+    switch (obj.op) {
+      case 'changeBoxName':
+        message = '群名称由 ' + obj.value[0] + ' 更改为 ' + obj.value[1]
+        break
+      case 'addUser':
+        let newUser = this.data.group.users.find(item => item.id === obj.value[0])
+        if (newUser) message = newUser.nickName + '加入了群聊'
+        else message = '有新用户加入了群聊'
+        break
+      case 'deleteUser':
+        let oldUser = this.data.group.users.find(item => item.id === obj.value[0])
+        if (oldUser) message = oldUser.nickName + '退出了群聊'
+        else message = '有用户退出了群聊'
+    }
+    return message
   }
 })

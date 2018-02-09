@@ -196,7 +196,7 @@ function stationJson(api, method, params) {
   for (let item in params) {
     reqUrl += ('&' + item + '=' + params[item])
   }
-  console.log(reqUrl)
+  // console.log(reqUrl)
   return new Promise((resolve, reject) => {
     wx.request({
       url: reqUrl,
@@ -214,7 +214,27 @@ function stationJson(api, method, params) {
 }
 
 function stationDownload(api, params) {
+  let { url, token, stationId } = getReqParams()
+  let resourceStr = base64.encode(api)
+  let reqUrl = url + '/c/v1/stations/' + stationId + '/pipe?method=GET'
+  reqUrl += ('&resource=' + resourceStr)
+  for (let item in params) {
+    reqUrl += ('&' + item + '=' + params[item])
+  }
 
+  return new Promise((resolve, reject) => {
+    wx.downloadFile({
+      url: reqUrl,
+      header: { Authorization: token },
+      success: res => {
+        if (res.statusCode === 200) resolve(res.tempFilePath)
+        else reject(res)
+        
+      },
+      fail: res => reject(res)
+    })
+  })
+  
 }
 
 module.exports = {
@@ -229,5 +249,6 @@ module.exports = {
   getGroupList,
   getBox,
   getTweets,
-  stationJson
+  stationJson,
+  stationDownload
 }

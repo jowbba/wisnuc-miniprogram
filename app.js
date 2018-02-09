@@ -1,9 +1,9 @@
 //app.js
 var { Client, Message } = require('./utils/paho-mqtt.js')
+var DownloadTask = require('./utils/downloadTask.js')
 
 App({
   onLaunch: function(options) {
-    this.connect()
     setTimeout(() => {
       if (this.globalData.client) this.globalData.client.publish('wisnuc', 'hello world')
     }, 5000)
@@ -21,13 +21,14 @@ App({
     // url: 'http://test.siyouqun.com',
     url: 'http://10.10.9.87:4000',
     // url: 'http://www.siyouqun.org',
+    user: null,
     userInfo: null,
     ticket:'',
     currentGroup: null,
     tempFilePaths: [],
     client: null,
     readyQueue: [],
-    downloading: new Set(),
+    downloading: [],
     downloaded: new Map()
   },
 
@@ -45,18 +46,18 @@ App({
   connect: function() {
     if (this.globalData.client && this.globalData.client.isConnected()) 
     return console.log('connect exist now')
-
-    let client = this.globalData.client = new Client('wss://www.mengmeitong.com/mqtt', '100')
+    let clientId = 'client_mini_' + this.globalData.uuid
+    let client = this.globalData.client = new Client('mqtt://test.siyouqun.com', 1883, '100')
     client.connect({
       onSuccess: () => {
-        // console.log('connect success', this)
-        // this.subscribe('wisnuc')
+        console.log('connect success', this)
+        this.subscribe('wisnuc')
       }
     })
 
-    client.onMessageArrived = msg => {
+    // client.onMessageArrived = msg => {
       // console.log('message arrive', msg)
-    }
+    // }
   },
 
   subscribe: function(filter, subscribeOptions) {
@@ -76,7 +77,29 @@ App({
     }
   },
 
-  addDownloadTask: function() {
-    
+  addDownloadTask: function (boxUUID, tweetIndex, listIndex, sha256, metadata, callback) {
+    let task = new DownloadTask(boxUUID, tweetIndex, listIndex, sha256, metadata, callback)
+    this.globalData.readyQueue.unshift(task)
+    this.schedule()
+  },
+
+  schedule: function() {
+    let globalData = this.globalData
+    let downloading = globalData.downloading
+    let readyQueue = globalData.readyQueue
+    let downloaded = globalData.downloaded
+    while (downloading.length < 2 && readyQueue.length) {
+      let task = readyQueue.splice(0, 1)[0]
+      // console.log(task)
+      let checkFinishQueue = downloaded.get(task.sha256)
+      if (checkFinishQueue) {
+        // console.log('task exist in downloaded', checkFinishQueue.url)
+        task.finish(checkFinishQueue.url)
+      }
+      else {
+        downloading.push(task)
+        task.work()
+      }
+    }
   }
 })

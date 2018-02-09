@@ -18,6 +18,7 @@
           <text wx:if='{{group.tweet.cType == "text"}}'>{{group.tweet.tweeter.nickName}} : {{group.tweet.comment}}</text>
           <text wx:if='{{group.tweet.cType == "photo"}}'>{{group.tweet.tweeter.nickName}} : [照片]</text>
           <text wx:if='{{group.tweet.cType == "file"}}'>{{group.tweet.tweeter.nickName}} : [文件]</text>
+          <text wx:if='{{group.tweet.cType == "message"}}'>系统消息</text>
         </view>
       </view>
       <!--lastUpdate time-->
