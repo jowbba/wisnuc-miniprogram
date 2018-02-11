@@ -12,7 +12,8 @@ Page({
     currentUserID: '',
     toView: '',
     scrollTool: true,
-    settingPin: false
+    settingPin: false,
+    pulling: null
   },
 
   /**
@@ -38,27 +39,12 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
+    this.watchTweets()
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  // onPullDownRefresh: function () {
-  //   console.log('??')
-  // },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
+  onUnload: function () {
+    console.log('onhide trigger')
+    clearInterval(this.pulling)
   },
 
   init() {
@@ -66,51 +52,11 @@ Page({
     let boxUUID = group.uuid
     let apiUrl = '/boxes/' + boxUUID + '/tweets'
     util.stationJson(apiUrl, 'GET', { metadata: true }).then(tweets => {
-      tweets.forEach((item, tweetIndex) => {
-        // date
-        item.ctime = (new Date(item.ctime)).toLocaleString()
-        // contentType
-        if (item.type == 'boxmessage') {
-          item.cType = 'message'
-          item.message = this.getMessage(JSON.parse(item.comment))
-          return
-        }
-        else if (item.list.length === 0) item.cType = 'text'
-        else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
-        else item.cType = 'file'
-        
-        // total size 
-        item.totalSize = 0
-        if (item.tweeter) {
-          let tweeter = group.users.find(user => user.id === item.tweeter.id)
-          if (tweeter && tweeter.avatarUrl) item.tweeter.avatarUrl = tweeter.avatarUrl
-          if (tweeter && tweeter.nickName) item.tweeter.nickName = tweeter.nickName
-          else item.tweeter.nickName = '未知'
-        }else {
-          item.tweeter = {}
-          item.tweeter.nickName = '未知'
-        }
-        
-        item.list.forEach((file, listIndex) => {
-          item.totalSize += (typeof file.size === 'number' && !isNaN(file.size)) ? file.size : 0
-        })
-        item.totalSize = util.formatSize(item.totalSize)
-      })
+      if (!Array.isArray(tweets)) throw new Errow(tweets.message)
+      this.dealData(tweets)
       this.setData({ tweets, toView: 'toView' + tweets[tweets.length - 1].uuid })
       // add download image task
-      this.data.tweets.forEach((tweet, tweetIndex) => {
-        if (tweet.cType !== 'photo') return
-        tweet.list.forEach((file, listIndex) => {
-          if (listIndex > 6) return
-          //get image from finished queue 
-          if (false) {
-            //todo
-          } else {
-            let boxUUID = group.uuid
-            app.addDownloadTask(boxUUID, tweetIndex, listIndex, file.sha256, file.metadata, this.callback.bind(this))
-          }
-        })
-      })
+      this.downloadImages(tweets)
 
     }).catch(e => {
       console.log(e)
@@ -126,6 +72,96 @@ Page({
       })
     })
 
+  },
+
+  dealData(tweets) {
+    let group = app.globalData.currentGroup
+    tweets.forEach((item, tweetIndex) => {
+      // date
+      item.ctime = (new Date(item.ctime)).toLocaleString()
+      // contentType
+      if (item.type == 'boxmessage') {
+        item.cType = 'message'
+        item.message = this.getMessage(JSON.parse(item.comment))
+        return
+      }
+      else if (item.list.length === 0) item.cType = 'text'
+      else if (item.list.every(listItem => !!listItem.metadata)) item.cType = 'photo'
+      else item.cType = 'file'
+
+      // total size 
+      item.totalSize = 0
+      if (item.tweeter) {
+        let tweeter = group.users.find(user => user.id === item.tweeter.id)
+        if (tweeter && tweeter.avatarUrl) item.tweeter.avatarUrl = tweeter.avatarUrl
+        if (tweeter && tweeter.nickName) item.tweeter.nickName = tweeter.nickName
+        else item.tweeter.nickName = '未知'
+      } else {
+        item.tweeter = {}
+        item.tweeter.nickName = '未知'
+      }
+
+      item.list.forEach((file, listIndex) => {
+        item.totalSize += (typeof file.size === 'number' && !isNaN(file.size)) ? file.size : 0
+      })
+      item.totalSize = util.formatSize(item.totalSize)
+    })
+  },
+
+  downloadImages(tweets) {
+    console.log('begin download tweets', tweets)
+    let group = app.globalData.currentGroup
+    tweets.forEach((tweet, tweetIndex) => {
+      if (tweet.cType !== 'photo') return
+      tweet.list.forEach((file, listIndex) => {
+        if (listIndex > 6) return
+        //get image from finished queue 
+        if (false) {
+          //todo
+        } else {
+          let boxUUID = group.uuid
+          app.addDownloadTask(boxUUID, tweet.index, listIndex, file.sha256, file.metadata, this.callback.bind(this))
+        }
+      })
+    })
+  },
+
+  watchTweets() {
+    if (this.pulling) return
+    this.pulling = setInterval(() => {
+      let uuid = app.globalData.currentGroup.uuid
+      util.getBox().then(data => {
+        let group = data.find(item => item.uuid == uuid)
+        if (group && group.tweet.index) {
+          let last = group.tweet.index
+          let first = this.data.tweets[this.data.tweets.length - 1].index
+          let gap = last - first
+          if (gap < 1) return
+          let params = { metadata: true, first: last + 1, last:last+1,  count: gap }
+          // let params = { metadata: true, first: first + 1, last, count: gap }
+          // console.log(this.data.tweets)
+          console.log(params)
+          let apiUrl = '/boxes/' + uuid + '/tweets'
+          util.stationJson(apiUrl, 'GET', params).then(tweets => {
+            console.log(tweets)
+            if (!Array.isArray(tweets)) return
+            this.dealData(tweets)
+            console.log('after deal with tweets')
+            tweets.forEach(item => {
+              this.data.tweets.push(item)  
+            })
+            this.setData({tweets: this.data.tweets})
+            this.downloadImages(tweets)
+            // let newTweets = this.data.tweets.concat(tweets)
+            // this.setData({tweets: newTweets})
+
+          })
+        } else {
+          // todo
+        }
+          
+      })
+    }, 4000)
   },
 
 
@@ -169,6 +205,7 @@ Page({
 
   // 打开相册
   openCamera: function () {
+    return
     wx.chooseImage({
       count: 9, // 默认9
       sizeType: ['original'], // 可以指定是原图还是压缩图，默认二者都有
@@ -184,6 +221,7 @@ Page({
 
   // 查看照片
   previewImage: function (e) {
+    return
     let dataset = e.currentTarget.dataset
     let url = dataset.url
     let id = dataset.id

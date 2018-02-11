@@ -1,7 +1,7 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
@@ -20,6 +20,10 @@
 			"current": -1,
 			"list": []
 		},
+		"game": {
+			"current": -1,
+			"list": []
+		},
 		"miniprogram": {
 			"current": -1,
 			"list": [
@@ -27,7 +31,7 @@
 					"id": 0,
 					"name": "with ticket",
 					"pathName": "pages/login/login",
-					"query": "ticket=a0dad07b-5dba-44c6-86ef-a9694d3be80b"
+					"query": "ticket=beedf5a2-42e4-43b0-870c-b97fd72a7eb1"
 				}
 			]
 		}

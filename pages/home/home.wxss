@@ -66,6 +66,14 @@ Page {
 
 /*group */
 
+#no_group {
+  text-align: center;
+  position: relative;
+  top: 50%;
+  margin-top: -13px;
+  color: #999;
+}
+
 #group-list-container {
   margin-top: 5px;
 }
@@ -86,6 +94,7 @@ Page {
   margin-left: 16px;
   display: flex;
   flex-flow:row wrap;
+  flex-shrink: 0;
 }
 
 .group-screenshot image{
@@ -106,8 +115,12 @@ Page {
 }
 
 .group-name, .group-detail {
+  max-width: 180px; 
   height:22px;
   line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .group-name text {
@@ -130,6 +143,7 @@ Page {
   text-align: right;
   padding-right:16px;
   border-bottom: 1px solid #e5e5e5;
+  flex-shrink: 0;
 }
 
 .group-updateTime text {

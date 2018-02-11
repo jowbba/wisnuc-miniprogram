@@ -28,7 +28,7 @@
 
   <!--group content-->
   <scroll-view class='{{scrollTool?" ":"long"}}' id="group-content" scroll-y  scroll-into-view='{{toView}}' bindscroll="scroll">
-    <block wx:for='{{tweets}}' wx:key='index'>
+    <block wx:for='{{tweets}}' wx:for-index='aaa' wx:key='{{aaa}}'>
       <view class="{{item.tweeter.id == currentUserID?'commit-container myself':'commit-container'}}" id='toView{{item.uuid}}'>
         <template wx:if="{{item.cType !== 'message'}}" is="commit" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
         <template wx:if="{{item.cType == 'message'}}" is="message" data='{{id:item.uuid,tweet:item,currentUserID:currentUserID}}' />
@@ -46,7 +46,7 @@
     <view wx:if='{{inputValue}}' class="submit" bindtap="commitText">发送</view>
   </view>
 
-  <view id='create-tweet-button'>
+  <view id='create-tweet-button' bindtap='navToSetting'>
     <view class='float-button'>
       <view></view>
       <view></view>

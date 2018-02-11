@@ -1,6 +1,9 @@
 //app.js
-var { Client, Message } = require('./utils/paho-mqtt.js')
+// var { Client, Message } = require('./utils/paho-mqtt.js')
 var DownloadTask = require('./utils/downloadTask.js')
+var mqtt = require('./utils/my_mqtt.js')
+// var client = mqtt.connect('wss://workyun.com/mqtt')
+
 
 App({
   onLaunch: function(options) {
@@ -17,10 +20,9 @@ App({
   },
 
   globalData: {
-    // url: 'http://10.10.9.87:4000',
     // url: 'http://test.siyouqun.com',
-    url: 'http://10.10.9.87:4000',
-    // url: 'http://www.siyouqun.org',
+    // url: 'http://10.10.9.87:4000',
+    url: 'https://www.siyouqun.com',
     user: null,
     userInfo: null,
     ticket:'',
@@ -46,14 +48,15 @@ App({
   connect: function() {
     if (this.globalData.client && this.globalData.client.isConnected()) 
     return console.log('connect exist now')
-    let clientId = 'client_mini_' + this.globalData.uuid
-    let client = this.globalData.client = new Client('mqtt://test.siyouqun.com', 1883, '100')
-    client.connect({
-      onSuccess: () => {
-        console.log('connect success', this)
-        this.subscribe('wisnuc')
-      }
-    })
+    // console.log(this.globalData.user)
+    let clientId = 'client_mini_' + this.globalData.user.id
+    // let client = this.globalData.client = new Client('mqtt://test.siyouqun.com', 1883, '', clientId)
+    // client.connect({
+    //   onSuccess: () => {
+    //     console.log('connect success', this)
+    //     this.subscribe('wisnuc')
+    //   }
+    // })
 
     // client.onMessageArrived = msg => {
       // console.log('message arrive', msg)

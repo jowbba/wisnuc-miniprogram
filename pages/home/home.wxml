@@ -26,7 +26,11 @@
         <text wx:if='{{group.tweet}}'>{{group.tweet.ctime}}</text>
       </view>
     </view>
+
+    
   </block>
+
+  <view wx:if='{{groupList.length == 0}}' id='no_group'>您尚未加入任何私友群</view>
 
   <view class='create-grout-icon' bindtap="openCreateGroup">
     <image src="../../images/fab1@3x.png"></image>

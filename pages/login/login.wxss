@@ -23,6 +23,7 @@ Page {
   color: #999;
   text-align: right;
   margin-bottom: 20px;
+  display: none;
 }
 
 #login-avatar {

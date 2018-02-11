@@ -202,6 +202,7 @@ function stationJson(api, method, params) {
       url: reqUrl,
       header: { Authorization: token },
       success: res => {
+        // result has bug!!!
         if (res.statusCode !== 200) reject(res.data)
         else resolve(res.data.data)
       },

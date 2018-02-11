@@ -21,6 +21,7 @@ Page({
 
   // 初始化 获取群列表
   init: function () {
+    app.connect()
     app.globalData.currentGroup = null
     wx.showLoading()
     util.getBox().then(data => {

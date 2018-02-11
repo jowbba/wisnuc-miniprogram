@@ -26,20 +26,6 @@ Page({
     this.tryLogin()
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-  
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-  
-  },
-
   // 更新状态
   updateStatus: function(message) {
     this.setData({status:message})
@@ -93,11 +79,13 @@ Page({
         let data = result.data.data
         if (statusCode !== 200) {
           // 错误处理
-          if (statusCode == 400) return this.setData({ 'status': '邀请码无效' })
-          else if (code == 60001) return this.updateStatus('当前微信用户已注册') // 用户已在ticket所在设备注册过
-          else if (code == 60202) return this.updateStatus('邀请码已过期')
-          else if (code == 60204) return this.updateStatus('您已申请过加入设备，无需重复提交')
-          else return this.updateStatus(getErrorMessage(code))
+          if (statusCode == 400) this.setData({ 'status': '邀请码无效' })
+          else if (code == 60001) this.updateStatus('当前微信用户已注册') // 用户已在ticket所在设备注册过
+          else if (code == 60202) this.updateStatus('邀请码已过期')
+          else if (code == 60204) this.updateStatus('您已申请过加入设备，无需重复提交')
+          else this.updateStatus(getErrorMessage(code))
+          this.navToHome()
+          
         } else {
           // 状态码正确 判断是否能fill
           this.setData({
@@ -107,6 +95,7 @@ Page({
           if (data == null) {
             //ticket已使用
             this.updateStatus('邀请已完成')
+            this.navToHome()
           } else if (data.user && data.user.type == 'pending') {
             // 已有ticket被填写
             this.updateStatus('您已申请加入 ' + this.data.station.name + '\n 请等待确认')
@@ -115,6 +104,7 @@ Page({
           } else if (data.user && data.user.type == 'rejected' && data.user.ticketId == app.globalData.ticket) {
             // 当前ticket 已被拒绝
             this.updateStatus('你已被拒绝')
+            this.navToHome()
           }else {
             // ticket 未被使用
             this.setData({ status: '邀请你加入' + this.data.station.name + '.', state: 'wait' })
@@ -127,11 +117,9 @@ Page({
       })
       
     }else {
-      this.updateStatus('当前微信用户没有被邀请或绑定硬件设备，请在App中绑定用户后进行操作-2')
+      this.updateStatus('当前微信用户没有被邀请, 即将跳转...')
       //todo login
-      wx.switchTab({
-        url: '../home/home',
-      })
+      this.navToHome()
     }
   },
 
@@ -157,7 +145,8 @@ Page({
     this.data.pulling = false
     this.getTicket().then(ticketResult => {
       if (ticketResult.statusCode == 403 && ticketResult.data.code == 60001) {
-        return this.updateStatus('你已被添加进设备')
+        this.updateStatus('你已被添加进设备')
+        return this.navToHome()
       }
       console.log(ticketResult)
       this.checketPullResult(ticketResult.data.data.user)
@@ -185,5 +174,14 @@ Page({
       //nothing
       this.data.pulling = true
     }
+  },
+
+  // 页面跳转
+  navToHome: function() {
+    setTimeout(() => {
+      wx.redirectTo({
+        url: '../home/home',
+      })
+    }, 1500)
   }
 })
