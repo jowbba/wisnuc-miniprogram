@@ -117,7 +117,7 @@ Page({
       })
       
     }else {
-      this.updateStatus('当前微信用户没有被邀请, 即将跳转...')
+      this.updateStatus('即将跳转...')
       //todo login
       this.navToHome()
     }
@@ -182,6 +182,6 @@ Page({
       wx.redirectTo({
         url: '../home/home',
       })
-    }, 1500)
+    }, 1000)
   }
 })

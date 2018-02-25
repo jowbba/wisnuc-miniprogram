@@ -132,6 +132,7 @@ Page {
   position: fixed;
   right: 16px;
   bottom: 16px;
+  display: none;
 }
 
 .float-button {
