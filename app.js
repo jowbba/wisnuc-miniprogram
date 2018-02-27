@@ -31,7 +31,8 @@ App({
     client: null,
     readyQueue: [],
     downloading: [],
-    downloaded: new Map()
+    downloaded: new Map(),
+    maxTask: 2
   },
 
   randomString: function (len) {
@@ -80,26 +81,24 @@ App({
     }
   },
 
+  // add image download task
   addDownloadTask: function (boxUUID, tweetIndex, listIndex, sha256, metadata, callback) {
     let task = new DownloadTask(boxUUID, tweetIndex, listIndex, sha256, metadata, callback)
     this.globalData.readyQueue.unshift(task)
     this.schedule()
   },
 
+  // schedule download readyQueue
   schedule: function() {
-    let globalData = this.globalData
-    let downloading = globalData.downloading
-    let readyQueue = globalData.readyQueue
-    let downloaded = globalData.downloaded
-    while (downloading.length < 2 && readyQueue.length) {
+    let { downloading, readyQueue, downloaded } = this.globalData
+    while (downloading.length < this.globalData.maxTask && readyQueue.length) {
+      // push task into runningQueue
       let task = readyQueue.splice(0, 1)[0]
-      // console.log(task)
       let checkFinishQueue = downloaded.get(task.sha256)
-      if (checkFinishQueue) {
-        // console.log('task exist in downloaded', checkFinishQueue.url)
-        task.finish(checkFinishQueue.url)
-      }
+      // trigger task into finish when the same image has been download
+      if (checkFinishQueue) task.finish(checkFinishQueue.url)
       else {
+        // begin download
         downloading.push(task)
         task.work()
       }
